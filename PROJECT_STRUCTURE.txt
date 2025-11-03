@@ -1,0 +1,121 @@
+SSH TUNNEL MANAGER - STRUCTURE DU PROJET
+========================================
+
+app/
+├── 📄 README.md                    # Documentation complète
+├── 📄 QUICKSTART.md               # Guide de démarrage rapide
+├── 📄 EXAMPLES.md                 # Exemples d'utilisation
+├── 📄 package.json                # Dépendances backend
+├── 📄 .env                        # Configuration environnement
+├── 📄 .env.example                # Template configuration
+├── 📄 .gitignore                  # Fichiers à ignorer
+├── 🚀 start.sh                    # Script de démarrage
+│
+├── 🖥️  server/                     # BACKEND NODE.JS
+│   ├── index.js                   # Point d'entrée serveur
+│   ├── routes/
+│   │   ├── tunnels.js            # API Routes - Tunnels SSH
+│   │   └── ssl.js                # API Routes - Certificats SSL
+│   ├── services/
+│   │   ├── TunnelManager.js      # Gestion tunnels SSH
+│   │   └── SSLManager.js         # Génération certificats SSL
+│   ├── data/                     # Base de données NeDB
+│   └── certs/                    # Certificats générés
+│
+└── 🌐 client/                      # FRONTEND REACT
+    ├── package.json               # Dépendances frontend
+    ├── .env                       # Configuration React
+    ├── public/                    # Fichiers statiques
+    └── src/
+        ├── App.js                 # Composant principal
+        ├── App.css                # Styles globaux
+        ├── components/
+        │   ├── TunnelManager.js   # Interface tunnels SSH
+        │   ├── TunnelManager.css
+        │   ├── SSLManager.js      # Interface certificats SSL
+        │   ├── SSLManager.css
+        │   ├── LogViewer.js       # Visualiseur logs temps réel
+        │   └── LogViewer.css
+        └── services/
+            ├── api.js             # Client API HTTP
+            └── websocket.js       # Client WebSocket
+
+FONCTIONNALITÉS
+===============
+
+✅ Gestion Tunnels SSH
+   - Créer/fermer tunnels SSH avec port forwarding
+   - Support authentification par mot de passe ou clé SSH
+   - Surveillance en temps réel de l'état
+   - Sauvegarde des configurations
+
+✅ Génération Certificats SSL
+   - Créer certificats SSL auto-signés
+   - Télécharger certificats et clés privées
+   - Gestion validité et expiration
+   - Configuration complète (CN, pays, org, etc.)
+
+✅ Interface Temps Réel
+   - Logs en direct via WebSocket
+   - Mises à jour automatiques de l'état
+   - Interface fluide et responsive
+   - Design moderne avec animations
+
+✅ Persistance
+   - Base de données NeDB embarquée
+   - Sauvegarde automatique des configurations
+   - Gestion des certificats sur disque
+
+TECHNOLOGIES
+============
+
+Backend:
+  • Node.js + Express
+  • WebSocket (ws) pour temps réel
+  • ssh2 pour connexions SSH
+  • node-forge pour génération SSL
+  • NeDB pour base de données
+  • dotenv pour configuration
+
+Frontend:
+  • React 18
+  • Axios pour API HTTP
+  • WebSocket natif pour temps réel
+  • React Icons
+  • CSS3 avec animations et gradients
+
+DÉMARRAGE
+=========
+
+Installation:
+  npm run install-all
+
+Développement:
+  npm run dev
+  → Backend: http://localhost:3001
+  → Frontend: http://localhost:3000
+
+Production:
+  npm run build
+  npm start
+
+PORTS
+=====
+
+3000 - Frontend React
+3001 - Backend Express + WebSocket
+
+EXEMPLE D'UTILISATION
+=====================
+
+Créer un tunnel SSH:
+  ssh -L 8888:dl.flathub.org:443 user@xxx.xxx.xxx.xxx
+
+Dans l'app:
+  • SSH Host: xxx.xxx.xxx.xxx
+  • SSH User: user
+  • Local Port: 8888
+  • Remote Host: dl.flathub.org
+  • Remote Port: 443
+
+Les logs apparaissent en temps réel!

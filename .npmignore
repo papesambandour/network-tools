@@ -1,0 +1,43 @@
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Client source files (we only need the build)
+client/src
+client/public
+client/.gitignore
+client/README.md
+
+# Development dependencies
+node_modules/.cache
+
+# IDE
+.vscode
+.idea
+.claude
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation (optional - remove if you want to include)
+EXAMPLES.md
+FEATURES_COMPLETE.md
+MILITARY_DESIGN.md
+PROJECT_STRUCTURE.txt
+QUICKSTART.md
+SSL_SERVERS.md
+SUMMARY.md

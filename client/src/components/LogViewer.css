@@ -1,0 +1,146 @@
+.log-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.log-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1f2937;
+  font-size: 1.8rem;
+}
+
+.log-container {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 600px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.log-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.log-container::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+  background: #6b7280;
+  border-radius: 4px;
+}
+
+.log-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.empty-logs {
+  color: #9ca3af;
+  text-align: center;
+  padding: 3rem;
+  font-style: italic;
+}
+
+.log-entry {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.log-timestamp {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  min-width: 80px;
+}
+
+.log-type {
+  font-weight: 700;
+  min-width: 80px;
+}
+
+.log-message {
+  flex: 1;
+  word-break: break-word;
+}
+
+.log-info {
+  color: #60a5fa;
+}
+
+.log-info .log-type {
+  color: #60a5fa;
+}
+
+.log-success {
+  color: #34d399;
+}
+
+.log-success .log-type {
+  color: #34d399;
+}
+
+.log-warning {
+  color: #fbbf24;
+}
+
+.log-warning .log-type {
+  color: #fbbf24;
+}
+
+.log-error {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.log-error .log-type {
+  color: #f87171;
+}
+
+@media (max-width: 768px) {
+  .log-container {
+    height: 400px;
+  }
+
+  .log-entry {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .log-timestamp,
+  .log-type {
+    min-width: auto;
+  }
+}
