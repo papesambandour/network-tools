@@ -1,6 +1,6 @@
 {
   "name": "@papesambandour/network-tools",
-  "version": "1.0.16",
+  "version": "1.0.14",
   "description": "SSH Tunnel Manager with SSL Certificate Generation - Global CLI Tool",
   "main": "server/index.js",
   "bin": {
@@ -64,7 +64,7 @@
     "deploy:git": "npm run build:all && npm run git:add && npm run git:push && npm run git:tag && npm run git:push:tags",
     "publish:prepare": "npm run clean && npm run build:all && npm test",
     "publish:npm": "npm run publish:prepare && npm publish --access public",
-    "publish:full": "npm run version:patch && npm run build:all  && git push origin master && git push origin --tags && npm publish --access public",
+    "publish:full": "npm run build:all  && git push origin master && git push origin --tags && npm publish --access public",
     "release:patch": "npm run version:patch && npm run publish:full",
     "release:minor": "npm run version:minor && npm run publish:full",
     "release:major": "npm run version:major && npm run publish:full"
