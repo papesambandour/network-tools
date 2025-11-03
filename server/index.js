@@ -127,19 +127,27 @@ wss.on('connection', (ws) => {
 
 // Start server
 server.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`WebSocket server ready`);
-  console.log(`Socket.IO server ready for SSH terminals`);
+  const localUrl = `http://localhost:${PORT}`;
+  const networkUrl = `http://127.0.0.1:${PORT}`;
+
+  console.log('\n🚀 Network Tools Server Started Successfully!\n');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`📡 Server URL:        ${localUrl}`);
+  console.log(`🌐 Network URL:       ${networkUrl}`);
+  console.log(`🔌 WebSocket:         ws://localhost:${PORT}`);
+  console.log(`🖥️  Socket.IO:        ${localUrl}/socket.io/`);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`\n💡 Open your browser and navigate to: ${localUrl}\n`);
 
   // Load tunnels from database (without auto-connecting)
   try {
     const loadedCount = await tunnelManager.loadTunnelsFromDb();
     if (loadedCount > 0) {
-      console.log(`Successfully loaded ${loadedCount} tunnel(s) from database`);
-      console.log('Tunnels are disconnected by default. Use the Start button to connect.');
+      console.log(`✅ Successfully loaded ${loadedCount} tunnel(s) from database`);
+      console.log('⚠️  Tunnels are disconnected by default. Use the Start button to connect.\n');
     }
   } catch (err) {
-    console.error('Error loading tunnels:', err);
+    console.error('❌ Error loading tunnels:', err);
   }
 });
 
