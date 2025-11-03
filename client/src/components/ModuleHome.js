@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTerminal, FaLock, FaServer, FaNetworkWired } from 'react-icons/fa';
+import { FaTerminal, FaLock, FaServer, FaNetworkWired, FaExchangeAlt } from 'react-icons/fa';
 import './ModuleHome.css';
 
 function ModuleHome({ onModuleSelect }) {
@@ -11,6 +11,14 @@ function ModuleHome({ onModuleSelect }) {
       icon: <FaTerminal />,
       available: true,
       color: 'green'
+    },
+    {
+      id: 'reverse-proxy',
+      name: 'Reverse Proxy Manager',
+      description: 'Configure dynamic reverse proxy routes with backend support',
+      icon: <FaExchangeAlt />,
+      available: true,
+      color: 'purple'
     },
     {
       id: 'ssl-certificate',

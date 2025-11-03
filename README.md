@@ -7,6 +7,8 @@ A powerful SSH tunnel manager with SSL certificate generation and server managem
 - **SSH Tunnel Management**: Create and manage SSH tunnels with local port forwarding
 - **SSL Server Profiles**: Save and reuse SSH server configurations
 - **SSL Certificate Generation**: Create self-signed certificates for development
+- **Reverse Proxy**: Dynamic reverse proxy with support for API and streaming routes
+- **SSH Terminal**: Interactive SSH terminal in the browser
 - **Real-Time Monitoring**: Live logs via WebSocket connection
 - **Modern Web Interface**: Responsive design with intuitive controls
 
@@ -123,7 +125,44 @@ Create self-signed certificates for development:
 - Development environments
 - Testing SSL/TLS functionality
 
-### 4. Real-Time Logs
+### 4. Reverse Proxy Routes
+
+Configure dynamic reverse proxy routes to backend services:
+
+1. Go to **"Reverse Proxy Manager"** module from home
+2. Click **"New Route"**
+3. Configure:
+   - **Path**: Route path (e.g., `/api-auth`)
+   - **Target**: Backend URL (e.g., `http://backend.example.com`)
+   - **Type**:
+     - `API` for REST APIs (uses Axios)
+     - `Stream` for file downloads, WebSocket, streaming (uses http-proxy-middleware)
+   - **Proxy**: Optional proxy server (e.g., `http://proxy:3128`)
+   - **Headers**: Custom HTTP headers
+4. Click **"Create"**
+5. Copy the Internal URL (e.g., `http://localhost:3001/api-auth`)
+6. Use it in your applications!
+
+**Features**:
+- Dynamic route creation without restart
+- Support for proxy servers
+- Custom headers per route
+- Enable/disable routes on the fly
+- Test connectivity before creation
+- Copy internal URL with one click
+
+**Documentation**: See [REVERSE_PROXY.md](./docs/REVERSE_PROXY.md) for detailed information
+
+### 5. SSH Terminal
+
+Interactive SSH terminal directly in your browser:
+
+1. Go to **"SSH Terminal"** tab
+2. Connect to any SSH server
+3. Execute commands in real-time
+4. Multiple terminal sessions support
+
+### 6. Real-Time Logs
 
 Monitor all tunnel activity in the **"Logs"** tab:
 - Connection status updates
@@ -166,6 +205,24 @@ Remote Port: 443
 ```
 
 Access API via `https://localhost:8888`
+
+### Reverse Proxy Use Case
+
+```
+Path: /github-api
+Target: https://api.github.com
+Type: API
+Proxy: http://corporate-proxy:8080
+Headers: Authorization: token ghp_xxxxx
+```
+
+Access GitHub API via `http://localhost:3001/github-api/users/octocat`
+
+**Benefits**:
+- Bypass CORS restrictions
+- Centralize authentication
+- Route through corporate proxy
+- Add custom headers automatically
 
 ## Authentication Methods
 
@@ -268,9 +325,28 @@ network-tools --help
 4. **Use self-signed certificates** for development only
 5. **Regularly update** the package: `npm update -g network-tools`
 
+## Documentation
+
+📚 **[Complete Documentation Index](./docs/DOCUMENTATION_INDEX.md)** - Navigate all documentation files
+
+### Main Documentation
+- **[README.md](./README.md)**: This file - Getting started guide
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Detailed technical architecture
+
+### Reverse Proxy Module
+- **[REVERSE_PROXY.md](./docs/REVERSE_PROXY.md)**: Complete reverse proxy documentation
+- **[REVERSE_PROXY_USAGE.md](./docs/REVERSE_PROXY_USAGE.md)**: Usage guide with examples
+- **[REVERSE_PROXY_EXAMPLE.md](./docs/REVERSE_PROXY_EXAMPLE.md)**: Visual examples
+- **[REVERSE_PROXY_SUMMARY.md](./docs/REVERSE_PROXY_SUMMARY.md)**: Feature summary
+- **[CHANGELOG_REVERSE_PROXY.md](./docs/CHANGELOG_REVERSE_PROXY.md)**: Changelog
+- **[QUICK_START_REVERSE_PROXY.md](./docs/QUICK_START_REVERSE_PROXY.md)**: Quick start guide
+
+### Testing
+- **[test-reverse-proxy.sh](./test-reverse-proxy.sh)**: Automated test script for reverse proxy
+
 ## Support
 
-- **Documentation**: See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed technical information
+- **Documentation**: See documentation files above for detailed information
 - **Issues**: Report bugs or request features via your package repository
 - **Logs**: Check the real-time logs in the application for debugging
 

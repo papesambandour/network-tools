@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { FaServer, FaCertificate, FaTerminal, FaDatabase, FaHome, FaTh, FaDesktop } from 'react-icons/fa';
+import { FaServer, FaCertificate, FaTerminal, FaDatabase, FaHome, FaTh, FaDesktop, FaExchangeAlt } from 'react-icons/fa';
 import ModuleHome from './components/ModuleHome';
 import TunnelManager from './components/TunnelManager';
 import SSLManager from './components/SSLManager';
 import SSLServerManager from './components/SSLServerManager';
 import LogViewer from './components/LogViewer';
 import SSHTerminal from './components/SSHTerminal';
+import ReverseProxyManager from './components/ReverseProxyManager';
 import { connectWebSocket, disconnectWebSocket } from './services/websocket';
 import './App.css';
 
@@ -140,6 +141,8 @@ function App() {
   const handleModuleSelect = (moduleId) => {
     if (moduleId === 'ssh-tunnel') {
       navigate('/ssh-tunnel/tunnels');
+    } else if (moduleId === 'reverse-proxy') {
+      navigate('/reverse-proxy');
     }
   };
 
@@ -156,6 +159,30 @@ function App() {
       <Route
         path="/ssh-tunnel/*"
         element={<SSHTunnelModule isConnected={isConnected} logs={logs} onClearLogs={handleClearLogs} />}
+      />
+      <Route
+        path="/reverse-proxy"
+        element={
+          <div className="app">
+            <header className="app-header">
+              <div className="header-left">
+                <button className="btn btn-secondary btn-sm home-button" onClick={() => navigate('/')}>
+                  <FaHome /> Home
+                </button>
+                <h1>Reverse Proxy Manager</h1>
+              </div>
+              <div className="connection-status">
+                <span className={`status-dot ${isConnected ? 'connected' : 'disconnected'}`}></span>
+                <span>{isConnected ? 'System Online' : 'System Offline'}</span>
+              </div>
+            </header>
+            <div className="app-container">
+              <main className="app-content">
+                <ReverseProxyManager />
+              </main>
+            </div>
+          </div>
+        }
       />
     </Routes>
   );

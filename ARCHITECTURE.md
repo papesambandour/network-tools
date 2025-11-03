@@ -320,20 +320,29 @@ server/
 ├── services/
 │   ├── TunnelManager.js       # SSH tunnel management (ssh2)
 │   ├── SSLManager.js          # SSL certificate generation (node-forge)
-│   └── SSLServerManager.js    # SSL server CRUD (NeDB)
+│   ├── SSLServerManager.js    # SSL server CRUD (NeDB)
+│   ├── SSHTerminalManager.js  # SSH terminal management (Socket.IO + node-pty)
+│   └── ReverseProxyManager.js # Reverse proxy routes management
 ├── routes/
 │   ├── tunnels.js             # Tunnel REST API
 │   ├── ssl.js                 # SSL certificate REST API
-│   └── sslServers.js          # SSL server REST API
+│   ├── sslServers.js          # SSL server REST API
+│   └── reverseProxy.js        # Reverse proxy REST API
 └── data/
     ├── tunnels.db             # Tunnel configurations
-    └── ssl_servers.db         # Saved SSL servers
+    ├── ssl_servers.db         # Saved SSL servers
+    └── proxy-routes.db        # Reverse proxy routes
 ```
 
 **Technologies:**
 - Express (HTTP server)
 - ws (WebSocket server)
+- Socket.IO (Real-time bidirectional communication)
 - ssh2 (SSH client)
+- node-pty (Terminal emulation)
+- axios (HTTP client for reverse proxy)
+- http-proxy-middleware (Streaming proxy)
+- http-proxy-agent / https-proxy-agent (Proxy support)
 - node-forge (SSL/TLS generation)
 - NeDB (embedded NoSQL database)
 - dotenv (environment config)
@@ -342,12 +351,16 @@ server/
 
 ```
 client/src/
-├── App.js                      # Main app + tabs
+├── App.js                      # Main app + routing
 ├── components/
+│   ├── ModuleHome.js          # Home page with module selection
 │   ├── TunnelManager.js       # Tunnel interface
 │   ├── SSLServerManager.js    # SSL server interface
 │   ├── SSLManager.js          # Certificate interface
-│   └── LogViewer.js           # Real-time log console
+│   ├── SSHTerminal.js         # SSH terminal interface
+│   ├── ReverseProxyManager.js # Reverse proxy interface
+│   ├── LogViewer.js           # Real-time log console
+│   └── TunnelDetailsModal.js  # Tunnel details modal
 └── services/
     ├── api.js                 # HTTP client (axios)
     └── websocket.js           # WebSocket client
@@ -396,6 +409,19 @@ client/src/
 | GET | `/api/ssl/:file/download` | Download cert |
 | GET | `/api/ssl/:file/download-key` | Download key |
 | DELETE | `/api/ssl/:file` | Delete certificate |
+
+### Reverse Proxy API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/reverse-proxy/routes` | List all routes |
+| GET | `/api/reverse-proxy/routes/:id` | Get route details |
+| POST | `/api/reverse-proxy/routes` | Create new route |
+| PUT | `/api/reverse-proxy/routes/:id` | Update route |
+| DELETE | `/api/reverse-proxy/routes/:id` | Delete route |
+| PATCH | `/api/reverse-proxy/routes/:id/toggle` | Enable/disable route |
+| POST | `/api/reverse-proxy/test` | Test route configuration |
+| GET | `/api/reverse-proxy/stats` | Get statistics |
 
 ### WebSocket Events
 
@@ -721,31 +747,54 @@ npm update              # Update dependencies
 ```
 network-tools/
 ├── server/
-│   ├── index.js                 # Entry point
+│   ├── index.js                      # Entry point
 │   ├── services/
-│   │   ├── TunnelManager.js     # SSH tunnel management
-│   │   ├── SSLManager.js        # SSL generation
-│   │   └── SSLServerManager.js  # SSL server management
+│   │   ├── TunnelManager.js          # SSH tunnel management
+│   │   ├── SSLManager.js             # SSL generation
+│   │   ├── SSLServerManager.js       # SSL server management
+│   │   ├── SSHTerminalManager.js     # SSH terminal management
+│   │   └── ReverseProxyManager.js    # Reverse proxy management
 │   ├── routes/
-│   │   ├── tunnels.js           # Tunnel API routes
-│   │   ├── ssl.js               # SSL API routes
-│   │   └── sslServers.js        # SSL server API routes
-│   ├── data/                    # NeDB database
-│   └── certs/                   # Generated certificates
+│   │   ├── tunnels.js                # Tunnel API routes
+│   │   ├── ssl.js                    # SSL API routes
+│   │   ├── sslServers.js             # SSL server API routes
+│   │   └── reverseProxy.js           # Reverse proxy API routes
+│   ├── data/                         # NeDB database
+│   │   ├── tunnels.db                # Tunnel configurations
+│   │   ├── ssl_servers.db            # SSL server profiles
+│   │   └── proxy-routes.db           # Reverse proxy routes
+│   └── certs/                        # Generated certificates
 ├── client/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── TunnelManager.js  # Tunnel component
-│   │   │   ├── SSLServerManager.js # Server component
-│   │   │   ├── SSLManager.js     # SSL component
-│   │   │   └── LogViewer.js      # Log component
+│   │   │   ├── ModuleHome.js         # Module selection
+│   │   │   ├── TunnelManager.js      # Tunnel component
+│   │   │   ├── SSLServerManager.js   # Server component
+│   │   │   ├── SSLManager.js         # SSL component
+│   │   │   ├── SSHTerminal.js        # SSH terminal component
+│   │   │   ├── ReverseProxyManager.js # Reverse proxy component
+│   │   │   ├── LogViewer.js          # Log component
+│   │   │   └── TunnelDetailsModal.js # Tunnel details modal
 │   │   ├── services/
-│   │   │   ├── api.js            # API client
-│   │   │   └── websocket.js      # WebSocket client
-│   │   └── App.js                # Main component
+│   │   │   ├── api.js                # API client
+│   │   │   └── websocket.js          # WebSocket client
+│   │   └── App.js                    # Main component
 │   └── public/
 ├── bin/
-│   └── network-tools.js         # CLI entry point
+│   └── network-tools.js              # CLI entry point
+├── docs/                             # Documentation folder
+│   ├── REVERSE_PROXY.md              # Reverse proxy documentation
+│   ├── REVERSE_PROXY_USAGE.md        # Reverse proxy usage guide
+│   ├── REVERSE_PROXY_EXAMPLE.md      # Reverse proxy examples
+│   ├── REVERSE_PROXY_SUMMARY.md      # Reverse proxy summary
+│   ├── CHANGELOG_REVERSE_PROXY.md    # Reverse proxy changelog
+│   ├── QUICK_START_REVERSE_PROXY.md  # Quick start guide
+│   ├── DOCUMENTATION_INDEX.md        # Complete documentation index
+│   ├── UPDATES_SUMMARY.md            # Updates summary
+│   └── COMPLETION_REPORT.md          # Completion report
+├── README.md                         # Main documentation (root)
+├── ARCHITECTURE.md                   # This file (root)
+├── test-reverse-proxy.sh             # Reverse proxy test script
 └── package.json
 ```
 

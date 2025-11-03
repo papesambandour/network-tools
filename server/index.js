@@ -10,8 +10,10 @@ const { Server } = require('socket.io');
 const tunnelRoutes = require('./routes/tunnels');
 const sslRoutes = require('./routes/ssl');
 const sslServerRoutes = require('./routes/sslServers');
+const reverseProxyRoutes = require('./routes/reverseProxy');
 const TunnelManager = require('./services/TunnelManager');
 const SSHTerminalManager = require('./services/SSHTerminalManager');
+const ReverseProxyManager = require('./services/ReverseProxyManager');
 
 const app = express();
 const server = http.createServer(app);
@@ -79,16 +81,24 @@ const tunnelManager = new TunnelManager(wss);
 // Initialize SSH Terminal Manager (this sets up Socket.IO connection handlers)
 const sshTerminalManager = new SSHTerminalManager(io);
 
-// Make tunnelManager available to routes
+// Initialize Reverse Proxy Manager
+const reverseProxyManager = new ReverseProxyManager();
+
+// Make managers available to routes
 app.use((req, res, next) => {
   req.tunnelManager = tunnelManager;
+  req.reverseProxyManager = reverseProxyManager;
   next();
 });
+
+// Apply reverse proxy middleware for API routes (BEFORE static routes)
+app.use(reverseProxyManager.getApiMiddleware());
 
 // Routes
 app.use('/api/tunnels', tunnelRoutes);
 app.use('/api/ssl', sslRoutes);
 app.use('/api/ssl-servers', sslServerRoutes);
+app.use('/api/reverse-proxy', reverseProxyRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -149,6 +159,23 @@ server.listen(PORT, async () => {
   } catch (err) {
     console.error('❌ Error loading tunnels:', err);
   }
+
+  // Load reverse proxy routes from database
+  try {
+    const routes = await reverseProxyManager.loadRoutesFromDb();
+    if (routes.length > 0) {
+      console.log(`✅ Successfully loaded ${routes.length} reverse proxy route(s) from database`);
+
+      // Apply stream middlewares
+      const streamMiddlewares = reverseProxyManager.getStreamMiddlewares();
+      streamMiddlewares.forEach(({ path, middleware }) => {
+        app.use(path, middleware);
+        console.log(`   🔄 Stream middleware registered for: ${path}`);
+      });
+    }
+  } catch (err) {
+    console.error('❌ Error loading reverse proxy routes:', err);
+  }
 });
 
 // Graceful shutdown
@@ -156,6 +183,7 @@ process.on('SIGTERM', () => {
   console.log('SIGTERM received, closing server...');
   tunnelManager.closeAll();
   sshTerminalManager.closeAll();
+  reverseProxyManager.clearProxyAgents();
   server.close(() => {
     console.log('Server closed');
     process.exit(0);
