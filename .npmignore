@@ -20,11 +20,19 @@ client/README.md
 client/.env
 client/.env.*
 
-# Database files (contain sensitive data)
+# Database files (contain sensitive data - exclude from package)
 server/data/*.db
 server/data/*.db-journal
 *.db
 *.db-journal
+
+# But keep the data directory structure
+!server/data/.gitkeep
+
+# Source maps (large files not needed in production)
+*.map
+**/*.map
+client/build/**/*.map
 
 # Generated certificates
 server/certs/*.pem
@@ -67,6 +75,25 @@ coverage/
 __tests__/
 *.test.js
 *.spec.js
+test/
+tests/
+
+# Unnecessary files from dependencies
+**/test/
+**/tests/
+**/.github/
+**/examples/
+**/example/
+**/*.md
+!README.md
+**/CHANGELOG*
+**/LICENSE*
+**/HISTORY*
+**/.npmignore
+**/.eslintrc*
+**/.prettierrc*
+**/tsconfig.json
+**/*.ts.map
 
 # Temporary files
 *.tmp
