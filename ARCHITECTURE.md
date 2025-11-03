@@ -782,18 +782,9 @@ network-tools/
 │   └── public/
 ├── bin/
 │   └── network-tools.js              # CLI entry point
-├── docs/                             # Documentation folder
-│   ├── REVERSE_PROXY.md              # Reverse proxy documentation
-│   ├── REVERSE_PROXY_USAGE.md        # Reverse proxy usage guide
-│   ├── REVERSE_PROXY_EXAMPLE.md      # Reverse proxy examples
-│   ├── REVERSE_PROXY_SUMMARY.md      # Reverse proxy summary
-│   ├── CHANGELOG_REVERSE_PROXY.md    # Reverse proxy changelog
-│   ├── QUICK_START_REVERSE_PROXY.md  # Quick start guide
-│   ├── DOCUMENTATION_INDEX.md        # Complete documentation index
-│   ├── UPDATES_SUMMARY.md            # Updates summary
-│   └── COMPLETION_REPORT.md          # Completion report
 ├── README.md                         # Main documentation (root)
-├── ARCHITECTURE.md                   # This file (root)
+├── ARCHITECTURE.md                   # This file - Complete architecture & documentation
+├── ORGANIZATION.md                   # Project organization guide
 ├── test-reverse-proxy.sh             # Reverse proxy test script
 └── package.json
 ```
@@ -807,35 +798,636 @@ network-tools/
 
 ---
 
+---
+
+## Reverse Proxy Module
+
+### Overview
+
+The Reverse Proxy module provides dynamic reverse proxy capabilities with support for backend services and proxy servers. Routes can be added, modified, and removed on the fly without server restart.
+
+### Features
+
+- **Dynamic Route Management**: Add/modify/delete routes without restart
+- **Two Proxy Types**:
+  - **API**: Using Axios (ideal for REST APIs)
+  - **Stream**: Using http-proxy-middleware (ideal for streaming, files, WebSocket)
+- **Custom HTTP Headers**: Per-route header configuration
+- **Proxy Server Support**: Optional intermediate proxy server
+- **Real-time Toggle**: Enable/disable routes instantly
+- **Connectivity Testing**: Test route before creation
+- **Statistics & Monitoring**: Real-time metrics
+- **Internal URL Display**: Shows the backend server URL with copy button
+
+### Architecture
+
+#### Backend Components
+
+**ReverseProxyManager.js** (370 lines)
+- Service managing reverse proxy routes
+- CRUD operations on routes
+- Proxy agent caching for efficient connections
+- API and Stream middleware generation
+
+**reverseProxy.js** (150 lines)
+- REST API endpoints for route management
+- Endpoints: GET/POST/PUT/DELETE routes, toggle, test, stats
+
+**Database**: `server/data/proxy-routes.db` (NeDB)
+```javascript
+{
+  _id: "unique-id",
+  path: "/api-route",
+  target: "http://backend.com",
+  type: "api" | "stream",
+  proxy: "http://proxy:3128" | null,
+  headers: { "Key": "Value" },
+  description: "Description",
+  enabled: true,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+#### Frontend Components
+
+**ReverseProxyManager.js** (490 lines)
+- Complete React UI for managing routes
+- Features:
+  - Display internal URL (backend server URL at port 3001)
+  - Copy button with animation
+  - Route creation/modification forms
+  - Statistics dashboard
+  - Test connectivity button
+
+**ReverseProxyManager.css** (450 lines)
+- Modern styling with animations
+- Key styles: `.internal-url`, `.btn-copy`, `.url-container`
+- Pulse animation for copy confirmation
+
+### API Endpoints
+
+```
+GET    /api/reverse-proxy/routes          - List all routes
+GET    /api/reverse-proxy/routes/:id      - Get route details
+POST   /api/reverse-proxy/routes          - Create new route
+PUT    /api/reverse-proxy/routes/:id      - Update route
+DELETE /api/reverse-proxy/routes/:id      - Delete route
+PATCH  /api/reverse-proxy/routes/:id/toggle - Enable/disable route
+POST   /api/reverse-proxy/test            - Test route configuration
+GET    /api/reverse-proxy/stats           - Get statistics
+```
+
+### Usage
+
+#### Via Web Interface
+
+1. Start server: `npm run dev`
+2. Open interface: http://localhost:3000
+3. Click "Reverse Proxy Manager"
+4. Click "New Route"
+5. Configure:
+   - **Path**: Route path (e.g., `/api-auth`)
+   - **Target**: Backend URL
+   - **Type**: `api` or `stream`
+   - **Proxy** (optional): Intermediate proxy URL
+   - **Headers** (optional): Custom HTTP headers
+   - **Description**: Route description
+
+#### Understanding URLs
+
+**Two Different Servers:**
+
+1. **Management Interface (React Client)** 🖥️
+   - URL: `http://localhost:3000`
+   - Purpose: Create, modify, delete routes
+   - Technology: React (graphical interface)
+
+2. **Reverse Proxy Server (Backend)** 🔄
+   - URL: `http://localhost:3001`
+   - Purpose: Receive requests and redirect to backends
+   - Technology: Express.js (Node.js server)
+
+**Important:** The Internal URL displayed in the interface uses the backend server URL (port 3001), not the client React URL (port 3000). This is the URL you use in Postman, curl, or your applications.
+
+#### Complete Workflow
+
+**Step 1: Create a route via interface**
+1. Open browser: `http://localhost:3000`
+2. Click "Reverse Proxy Manager"
+3. Click "New Route"
+4. Fill in form:
+   ```
+   Path: /api-auth
+   Target: http://backend.example.com
+   Type: API
+   Proxy: http://proxy:3128 (optional)
+   ```
+5. Click "Create"
+
+**Step 2: Get internal URL**
+In the route list, you'll see:
+```
+Internal URL: http://localhost:3001/api-auth [📋]
+Backend Target: http://backend.example.com
+Proxy Server: http://proxy:3128
+```
+Click 📋 to copy the URL: `http://localhost:3001/api-auth`
+
+**Step 3: Use the route**
+
+With curl:
+```bash
+# Simple GET
+curl http://localhost:3001/api-auth/users
+
+# POST with data
+curl -X POST http://localhost:3001/api-auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user","password":"pass"}'
+```
+
+With JavaScript (fetch):
+```javascript
+fetch('http://localhost:3001/api-auth/users')
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+```
+
+With Python (requests):
+```python
+import requests
+
+response = requests.get('http://localhost:3001/api-auth/users')
+print(response.json())
+```
+
+#### Via REST API
+
+```bash
+# Create API route
+curl -X POST http://localhost:3001/api/reverse-proxy/routes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/api-users",
+    "target": "http://backend.example.com/users",
+    "type": "api",
+    "enabled": true
+  }'
+
+# Create Stream route (for downloads, WebSocket, etc.)
+curl -X POST http://localhost:3001/api/reverse-proxy/routes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/files",
+    "target": "http://fileserver.example.com",
+    "type": "stream",
+    "enabled": true
+  }'
+
+# List all routes
+curl http://localhost:3001/api/reverse-proxy/routes
+
+# Disable a route
+curl -X PATCH http://localhost:3001/api/reverse-proxy/routes/:id/toggle \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
+```
+
+### Route Types
+
+#### Type "api" (Axios)
+
+**When to use:**
+- REST APIs
+- JSON responses
+- GET, POST, PUT, DELETE requests
+- Requests with timeout
+
+**Features:**
+- Uses Axios for requests
+- Full HTTP verb support
+- Automatic header management
+- Configurable timeout
+- Complete proxy support
+
+**Example:**
+```javascript
+{
+  "path": "/api-users",
+  "target": "http://api.example.com/users",
+  "type": "api"
+}
+```
+
+#### Type "stream" (http-proxy-middleware)
+
+**When to use:**
+- Large file downloads
+- File uploads
+- Video/audio streaming
+- WebSocket connections
+- Server-Sent Events (SSE)
+
+**Features:**
+- Real-time streaming without buffering
+- Long-lived connection support
+- Minimal latency
+
+**Example:**
+```javascript
+{
+  "path": "/files",
+  "target": "http://fileserver.com",
+  "type": "stream"
+}
+```
+
+### Use Cases
+
+#### 1. Internal Company API
+
+**Problem:** Cannot access `http://internal-api.company.local` directly from your machine
+
+**Solution:** Create proxy route
+```
+Path: /company-api
+Target: http://internal-api.company.local
+Proxy: http://corporate-proxy:8080
+```
+
+**Usage:**
+```bash
+# Instead of:
+curl http://internal-api.company.local/users  # ❌ Doesn't work
+
+# Use:
+curl http://localhost:3001/company-api/users  # ✅ Works!
+```
+
+#### 2. Bypass CORS
+
+**Problem:** Your React app can't call external API due to CORS
+
+**Solution:** Create proxy route
+```
+Path: /external-api
+Target: https://api.example.com
+Type: API
+```
+
+**Usage:**
+```javascript
+// Instead of:
+fetch('https://api.example.com/data')  // ❌ CORS error
+
+// Use:
+fetch('http://localhost:3001/external-api/data')  // ✅ No CORS!
+```
+
+#### 3. Centralized Authentication
+
+**Problem:** Multiple microservices with different auth tokens
+
+**Solution:** Create multiple routes with headers
+```
+Route 1:
+Path: /service-a
+Target: http://service-a.com
+Headers: { "Authorization": "Bearer token-a" }
+
+Route 2:
+Path: /service-b
+Target: http://service-b.com
+Headers: { "Authorization": "Bearer token-b" }
+```
+
+**Usage:**
+```bash
+# No need to manage tokens in your application
+curl http://localhost:3001/service-a/data
+curl http://localhost:3001/service-b/data
+```
+
+#### 4. Large File Downloads
+
+**Problem:** Download file from remote server
+
+**Solution:** Create Stream route
+```
+Path: /downloads
+Target: http://fileserver.local:9000
+Type: Stream
+```
+
+**Usage:**
+```bash
+# Download file
+curl -O http://localhost:3001/downloads/bigfile.zip
+
+# Or in browser
+http://localhost:3001/downloads/video.mp4
+```
+
+### Configuration with Proxy
+
+When using intermediate proxy:
+
+```javascript
+{
+  "path": "/api-internal",
+  "target": "http://internal-api.company.local",
+  "proxy": "http://proxy.company.local:3128",
+  "type": "api"
+}
+```
+
+Request flow:
+```
+Client → Network Tools (3001) → Proxy (3128) → Backend
+```
+
+### Visual Examples
+
+#### Route Card Display
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  [API]  /api-auth                                    [⚡] [✎] [🗑]   │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  Internal URL:                                                       │
+│  ┌────────────────────────────────────────────────────────┐        │
+│  │ http://localhost:3001/api-auth                    [📋] │        │
+│  └────────────────────────────────────────────────────────┘        │
+│                                                                      │
+│  Backend Target:                                                     │
+│  http://backend.example.com                                         │
+│                                                                      │
+│  Proxy Server:                                                       │
+│  http://10.34.78.16:3128                                           │
+│                                                                      │
+│  Description:                                                        │
+│  API d'authentification via proxy interne                          │
+│                                                                      │
+│  Headers:                                                            │
+│  [User-Agent: curl/7.68.0]                                         │
+│                                                                      │
+│  Created: 03/11/2025 10:30:15                                      │
+│  Modified: 03/11/2025 11:45:22                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Legend:**
+- **[API]** or **[STREAM]**: Route type
+- **⚡**: Enable/disable button
+- **✎**: Edit button
+- **🗑**: Delete button
+- **[📋]**: Copy internal URL to clipboard
+
+#### Request Flow
+
+When client accesses `http://localhost:3001/api-auth/login`:
+
+```
+┌─────────┐       ┌──────────────────┐       ┌────────────┐       ┌─────────────┐
+│ Client  │──────>│ Reverse Proxy    │──────>│   Proxy    │──────>│  Backend    │
+│         │       │ localhost:3001   │       │ 10.34.78.16│       │ backend.com │
+└─────────┘       └──────────────────┘       └────────────┘       └─────────────┘
+                         │                          │                     │
+                         │  Path: /api-auth         │                     │
+                         │  Headers: User-Agent     │                     │
+                         │                          │                     │
+                         └──────────────────────────┴─────────────────────┘
+```
+
+#### Statistics Display
+
+```
+┌──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
+│    Total     │   Active     │  Disabled    │     API      │    Stream    │
+│      5       │      4       │      1       │      3       │      2       │
+└──────────────┴──────────────┴──────────────┴──────────────┴──────────────┘
+```
+
+### Troubleshooting
+
+#### Route doesn't work
+
+1. Check route is enabled (`enabled: true`)
+2. Test connectivity with `/api/reverse-proxy/test` endpoint
+3. Check server logs
+4. Verify path doesn't start with `/api`
+
+#### Proxy issues
+
+1. Verify proxy is accessible
+2. Check proxy URL syntax: `http://host:port`
+3. Test without proxy first
+
+#### Headers not transmitted
+
+- API routes: Headers automatically merged
+- Stream routes: Custom headers added manually
+
+### Performance
+
+- Proxy agents cached to avoid recreating connections
+- Routes loaded in memory at startup
+- Stream middlewares registered dynamically
+
+### Security
+
+⚠️ **Important Note:** Code currently disables SSL verification (`NODE_TLS_REJECT_UNAUTHORIZED = '0'`) for testing with internal proxies.
+
+**For production:**
+1. Enable SSL verification
+2. Configure appropriate certificates
+3. Use HTTPS for sensitive communications
+4. Implement authentication on API routes
+
+### Quick Start
+
+#### 30-Second Quick Start
+
+```bash
+# 1. Start server
+npm run dev
+
+# 2. Open browser
+http://localhost:3000
+
+# 3. Create route
+Click "Reverse Proxy Manager" → "New Route"
+
+# 4. Copy URL
+Click 📋 next to "Internal URL"
+
+# 5. Use
+curl http://localhost:3001/your-route
+```
+
+#### Concrete Example - JSONPlaceholder
+
+**Web Interface:**
+```
+Path: /api-test
+Target: https://jsonplaceholder.typicode.com
+Type: API
+Enabled: ✓
+```
+
+**Result:**
+```
+Internal URL: http://localhost:3001/api-test [📋]
+```
+
+**Usage:**
+```bash
+# Instead of:
+curl https://jsonplaceholder.typicode.com/users/1
+
+# Use:
+curl http://localhost:3001/api-test/users/1
+```
+
+### Automated Testing
+
+Test script available: `test-reverse-proxy.sh`
+
+```bash
+./test-reverse-proxy.sh
+```
+
+Tests:
+- Server connection
+- Route creation
+- Route functionality
+- Statistics
+- Enable/disable
+- Cleanup
+
+### Best Practices
+
+1. **Clear Route Naming**
+   ```bash
+   ✅ /api-auth, /github-api, /files-download
+   ❌ /a, /route1, /test
+   ```
+
+2. **Use Correct Type**
+   - **API**: REST APIs (GET, POST, PUT, DELETE)
+   - **Stream**: Files, streaming, WebSocket
+
+3. **Test Before Deploy**
+   1. Create route
+   2. Click "Test"
+   3. Verify result
+   4. Test with curl
+   5. Use in your application
+
+4. **Documentation**
+   Add clear description to each route:
+   ```
+   Description: Authentication API - endpoints: /login, /logout, /refresh
+   ```
+
+### Bug Fixes
+
+#### Fixed: Incorrect URL Display
+
+**Problem:** Displayed URL used `window.location.origin` which returned client React URL (port 3000) instead of backend server URL (port 3001).
+
+**Before (❌ Incorrect):**
+```javascript
+<span>{window.location.origin}{route.path}</span>
+// Result: http://localhost:3000/api-auth (WRONG)
+```
+
+**After (✅ Correct):**
+```javascript
+const getBackendUrl = () => {
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+  return apiUrl.replace('/api', '');
+};
+<span>{getBackendUrl()}{route.path}</span>
+// Result: http://localhost:3001/api-auth (CORRECT)
+```
+
+### Changelog
+
+#### Version 1.2.1 - 2025-11-03
+
+**New Features:**
+- ✅ Dynamic reverse proxy module
+- ✅ API and Stream route types
+- ✅ Proxy server support
+- ✅ Custom HTTP headers
+- ✅ Internal URL display with copy button
+- ✅ Connectivity testing
+- ✅ Real-time statistics
+- ✅ Enable/disable routes on the fly
+
+**Files Created:**
+- `server/services/ReverseProxyManager.js` (370 lines)
+- `server/routes/reverseProxy.js` (150 lines)
+- `client/src/components/ReverseProxyManager.js` (490 lines)
+- `client/src/components/ReverseProxyManager.css` (450 lines)
+
+**Files Modified:**
+- `server/index.js` - Integrated ReverseProxyManager
+- `client/src/App.js` - Added reverse-proxy route
+- `client/src/components/ModuleHome.js` - Added module card
+- `package.json` - Added dependencies (axios, http-proxy-middleware, agents)
+
+**Dependencies Added:**
+- axios ^1.13.1
+- http-proxy-middleware ^3.0.5
+- http-proxy-agent ^7.0.2
+- https-proxy-agent ^7.0.6
+
+**Statistics:**
+- Backend: ~520 lines
+- Frontend: ~940 lines
+- Total: ~1460 lines of code
+
+**Status:** ✅ Production Ready
+
+---
+
 ## Project Statistics
 
 ### Lines of Code (approximate)
 
-- **Backend**: ~800 lines
+- **Backend**: ~1320 lines (+520 from reverse proxy)
   - TunnelManager: ~250 lines
   - SSLManager: ~150 lines
   - SSLServerManager: ~150 lines
-  - Routes: ~250 lines
+  - ReverseProxyManager: ~370 lines (NEW)
+  - Routes: ~400 lines (+150 from reverse proxy)
 
-- **Frontend**: ~1200 lines
+- **Frontend**: ~2140 lines (+940 from reverse proxy)
   - TunnelManager: ~350 lines
   - SSLServerManager: ~300 lines
   - SSLManager: ~250 lines
+  - ReverseProxyManager: ~490 lines (NEW)
   - LogViewer: ~80 lines
   - App: ~80 lines
   - Services: ~140 lines
+  - ReverseProxyManager.css: ~450 lines (NEW)
 
-- **CSS**: ~600 lines
+- **CSS**: ~1050 lines (+450 from reverse proxy)
 
-**Total**: ~2600 lines of code
+**Total**: ~4510 lines of code (+1460 from reverse proxy)
 
 ### Dependencies
 
-- Backend: 11 packages
+- Backend: 15 packages (+4 from reverse proxy)
 - Frontend: 7 packages
 - Dev: 2 packages
 
-**Total**: 20 packages
+**Total**: 24 packages (+4)
 
 ---
 
@@ -849,16 +1441,14 @@ Pape Samba Ndour
 
 ---
 
-
----
-
 ## Support
 
 For issues and questions:
 - Check the logs in real-time interface
 - Review examples above
 - Check API documentation
+- Test with automated script: `./test-reverse-proxy.sh`
 
 ---
 
-**Ready to use! Start managing your SSH tunnels with ease! 🚀**
+**Ready to use! Start managing your SSH tunnels and reverse proxy routes with ease! 🚀**

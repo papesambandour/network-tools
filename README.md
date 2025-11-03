@@ -151,7 +151,7 @@ Configure dynamic reverse proxy routes to backend services:
 - Test connectivity before creation
 - Copy internal URL with one click
 
-**Documentation**: See [REVERSE_PROXY.md](./docs/REVERSE_PROXY.md) for detailed information
+**Documentation**: See [Reverse Proxy Module](#reverse-proxy-module) section in ARCHITECTURE.md for detailed information
 
 ### 5. SSH Terminal
 
@@ -327,19 +327,19 @@ network-tools --help
 
 ## Documentation
 
-📚 **[Complete Documentation Index](./docs/DOCUMENTATION_INDEX.md)** - Navigate all documentation files
-
 ### Main Documentation
 - **[README.md](./README.md)**: This file - Getting started guide
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Detailed technical architecture
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Complete technical architecture and detailed documentation
 
 ### Reverse Proxy Module
-- **[REVERSE_PROXY.md](./docs/REVERSE_PROXY.md)**: Complete reverse proxy documentation
-- **[REVERSE_PROXY_USAGE.md](./docs/REVERSE_PROXY_USAGE.md)**: Usage guide with examples
-- **[REVERSE_PROXY_EXAMPLE.md](./docs/REVERSE_PROXY_EXAMPLE.md)**: Visual examples
-- **[REVERSE_PROXY_SUMMARY.md](./docs/REVERSE_PROXY_SUMMARY.md)**: Feature summary
-- **[CHANGELOG_REVERSE_PROXY.md](./docs/CHANGELOG_REVERSE_PROXY.md)**: Changelog
-- **[QUICK_START_REVERSE_PROXY.md](./docs/QUICK_START_REVERSE_PROXY.md)**: Quick start guide
+All reverse proxy documentation is now consolidated in **[ARCHITECTURE.md](./ARCHITECTURE.md)** under the [Reverse Proxy Module](#reverse-proxy-module) section:
+- Complete reverse proxy documentation
+- Usage guide with examples (curl, JavaScript, Python)
+- Visual examples and workflow
+- Feature summary and changelog
+- Quick start guide (30-second setup)
+- Use cases and best practices
+- Troubleshooting guide
 
 ### Testing
 - **[test-reverse-proxy.sh](./test-reverse-proxy.sh)**: Automated test script for reverse proxy
