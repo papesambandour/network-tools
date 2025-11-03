@@ -14,9 +14,23 @@
     "bin/",
     "server/",
     "client/build/",
+    "node_modules/",
     "README.md",
     ".env.example",
     "client/.env.example"
+  ],
+  "bundledDependencies": [
+    "body-parser",
+    "cors",
+    "dotenv",
+    "express",
+    "@seald-io/nedb",
+    "node-forge",
+    "node-pty",
+    "socket.io",
+    "ssh2",
+    "uuid",
+    "ws"
   ],
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",

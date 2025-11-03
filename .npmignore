@@ -1,5 +1,7 @@
-# CRITICAL: Exclude node_modules completely
-node_modules/
+# Keep node_modules for bundled dependencies (needed for global install)
+# node_modules/ is INCLUDED via bundledDependencies
+
+# Exclude client node_modules (not needed, only build is needed)
 client/node_modules/
 package-lock.json
 client/package-lock.json

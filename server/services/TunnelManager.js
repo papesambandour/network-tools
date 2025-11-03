@@ -1,6 +1,6 @@
 const { Client } = require('ssh2');
 const { v4: uuidv4 } = require('uuid');
-const Datastore = require('nedb');
+const Datastore = require('@seald-io/nedb');
 const path = require('path');
 const fs = require('fs');
 const net = require('net');

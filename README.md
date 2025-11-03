@@ -800,9 +800,6 @@ Pape Samba Ndour
 
 ---
 
-## Version
-
-**1.0.1** - Last updated: 2025-11-03
 
 ---
 
