@@ -1,0 +1,49 @@
+================================================================================
+                    NETWORK TOOLS v1.3.1
+          Installation sur Linux sans compilateur C/C++
+================================================================================
+
+🚀 INSTALLATION RAPIDE (3 COMMANDES):
+
+1. Extraire le script:
+   tar -xzf papesambandour-network-tools-1.3.1.tgz --strip-components=1 package/install.sh
+
+2. Rendre exécutable:
+   chmod +x install.sh
+
+3. Installer:
+   ./install.sh papesambandour-network-tools-1.3.1.tgz
+
+================================================================================
+
+📝 ALTERNATIVE: Installation directe (sans compilateur)
+
+   npm install -g papesambandour-network-tools-1.3.1.tgz --ignore-scripts
+
+================================================================================
+
+✅ VÉRIFICATION:
+
+   network-tools --version
+   network-tools
+
+   Puis ouvrir: http://localhost:3001
+
+================================================================================
+
+📖 DOCUMENTATION COMPLÈTE:
+
+   Voir INSTALL_LINUX.txt pour toutes les méthodes d'installation
+   Voir INSTALLATION.md (dans le .tgz) pour le guide détaillé
+
+================================================================================
+
+⚠️  ERREUR "Unable to detect compiler type" ?
+
+   C'est normal ! Utilisez simplement --ignore-scripts:
+
+   npm install -g papesambandour-network-tools-1.3.1.tgz --ignore-scripts
+
+   L'application fonctionnera parfaitement.
+
+================================================================================

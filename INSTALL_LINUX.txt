@@ -1,0 +1,193 @@
+================================================================================
+  INSTALLATION DE NETWORK TOOLS v1.3.1 SUR LINUX
+  Guide rapide pour machines sans compilateur C/C++
+================================================================================
+
+📦 FICHIERS NÉCESSAIRES:
+  - papesambandour-network-tools-1.3.1.tgz
+  - install.sh (inclus dans le .tgz)
+
+================================================================================
+  MÉTHODE 1: SCRIPT D'INSTALLATION AUTOMATIQUE (RECOMMANDÉ)
+================================================================================
+
+1. Extraire le script d'installation:
+   tar -xzf papesambandour-network-tools-1.3.1.tgz --strip-components=1 package/install.sh
+
+2. Rendre le script exécutable:
+   chmod +x install.sh
+
+3. Lancer l'installation:
+   ./install.sh papesambandour-network-tools-1.3.1.tgz
+
+   Le script essaiera automatiquement plusieurs méthodes:
+   - Installation avec --ignore-scripts
+   - Installation avec --force
+   - Installation manuelle
+
+================================================================================
+  MÉTHODE 2: INSTALLATION SIMPLE (SANS COMPILATEUR)
+================================================================================
+
+Ignorer les scripts de compilation (fonctionne sans GCC):
+
+   npm install -g papesambandour-network-tools-1.3.1.tgz --ignore-scripts
+
+⚠️  Note: Les performances SSH peuvent être légèrement réduites, mais
+    l'application fonctionne normalement.
+
+================================================================================
+  MÉTHODE 3: INSTALLATION AVEC COMPILATEUR (PERFORMANCES OPTIMALES)
+================================================================================
+
+Si vous pouvez installer les outils de compilation:
+
+1. Installer les outils:
+   # Ubuntu/Debian:
+   sudo apt-get update
+   sudo apt-get install -y build-essential python3
+
+   # RedHat/CentOS/Fedora:
+   sudo yum groupinstall "Development Tools"
+   sudo yum install python3
+
+2. Installer le package:
+   npm install -g papesambandour-network-tools-1.3.1.tgz
+
+================================================================================
+  MÉTHODE 4: INSTALLATION LOCALE (SANS SUDO)
+================================================================================
+
+Si vous n'avez pas les droits sudo:
+
+1. Créer le répertoire des binaires:
+   mkdir -p ~/.local/bin
+
+2. Extraire et installer:
+   mkdir -p ~/network-tools-temp
+   tar -xzf papesambandour-network-tools-1.3.1.tgz -C ~/network-tools-temp
+   cd ~/network-tools-temp/package
+   npm install --production --ignore-scripts --no-optional
+
+3. Créer le lien:
+   ln -s "$(pwd)/bin/network-tools.js" ~/.local/bin/network-tools
+   chmod +x bin/network-tools.js
+
+4. Ajouter au PATH:
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+   source ~/.bashrc
+
+================================================================================
+  VÉRIFICATION DE L'INSTALLATION
+================================================================================
+
+1. Vérifier la version:
+   network-tools --version
+
+   Sortie attendue: 1.3.1
+
+2. Démarrer l'application:
+   network-tools
+
+3. Ouvrir dans le navigateur:
+   http://localhost:3001
+
+4. Arrêter l'application:
+   Ctrl+C
+
+================================================================================
+  RÉSOLUTION DES PROBLÈMES
+================================================================================
+
+PROBLÈME: "Command not found: network-tools"
+SOLUTION: Ajouter npm au PATH:
+  export PATH="$(npm config get prefix)/bin:$PATH"
+  echo 'export PATH="$(npm config get prefix)/bin:$PATH"' >> ~/.bashrc
+
+PROBLÈME: "Unable to detect compiler type"
+SOLUTION: Utiliser --ignore-scripts:
+  npm install -g papesambandour-network-tools-1.3.1.tgz --ignore-scripts
+
+PROBLÈME: "EACCES: permission denied"
+SOLUTION 1: Utiliser sudo:
+  sudo npm install -g papesambandour-network-tools-1.3.1.tgz --ignore-scripts
+
+SOLUTION 2: Installation locale (voir Méthode 4)
+
+PROBLÈME: Port 3001 déjà utilisé
+SOLUTION: Utiliser un autre port:
+  PORT=8080 network-tools
+
+================================================================================
+  DÉSINSTALLATION
+================================================================================
+
+Installation globale:
+  npm uninstall -g @papesambandour/network-tools
+
+Installation locale:
+  rm -f ~/.local/bin/network-tools
+  rm -rf ~/network-tools-temp
+
+================================================================================
+  CONFIGURATION
+================================================================================
+
+Variables d'environnement (optionnelles):
+
+  PORT=3001                           # Port du serveur (défaut: 3001)
+  CLIENT_URL=http://localhost:3000    # URL du client React
+  SSH_KEY_PATH=~/.ssh/id_rsa          # Chemin de la clé SSH par défaut
+
+Exemples:
+  PORT=8080 network-tools
+  SSH_KEY_PATH=~/.ssh/my_key network-tools
+
+================================================================================
+  FONCTIONNALITÉS
+================================================================================
+
+✅ Gestion des tunnels SSH
+✅ Génération de certificats SSL
+✅ Gestion des serveurs SSL
+✅ Reverse Proxy dynamique
+✅ Terminal SSH dans le navigateur
+✅ Logs en temps réel (WebSocket)
+✅ Interface web moderne
+
+================================================================================
+  SUPPORT
+================================================================================
+
+Documentation complète:
+  cat INSTALLATION.md           # Guide détaillé
+  cat README.md                 # Documentation principale
+
+Vérifier les logs npm:
+  cat ~/.npm/_logs/*-debug-*.log | tail -50
+
+Informations système:
+  node --version
+  npm --version
+  uname -a
+
+GitHub:
+  https://github.com/papesambandour/network-tools
+
+================================================================================
+  NOTES IMPORTANTES
+================================================================================
+
+- Node.js requis: Version 14.x ou supérieure
+- Port par défaut: 3001
+- cpu-features (optionnel): Module natif pour optimiser SSH
+- Sans compilateur: Fonctionne normalement, performances légèrement réduites
+- Données: Stockées dans server/data/*.db (NeDB)
+
+================================================================================
+
+Version: 1.3.1
+Date: 03/11/2025
+Auteur: Pape Samba Ndour
+
+================================================================================
