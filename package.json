@@ -1,6 +1,6 @@
 {
   "name": "@papesambandour/network-tools",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "SSH Tunnel Manager with SSL Certificate Generation - Global CLI Tool",
   "main": "server/index.js",
   "bin": {
